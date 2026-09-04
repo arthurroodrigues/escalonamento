@@ -2,6 +2,7 @@
 #define SIMULATOR_H
 
 #define MAX_NOME 32
+#define MAX_TAREFAS 64
 
 typedef struct {
     char nome[MAX_NOME];
@@ -18,5 +19,6 @@ typedef struct {
     int totalperdidas;
 } Task;
 
+int ler_entrada(const char *caminho, Task tarefas[], int *numtarefas, int *tempototal);
 
 #endif
