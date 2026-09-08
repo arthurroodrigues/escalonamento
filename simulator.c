@@ -121,3 +121,116 @@ static int adicionar_evento(Evento **eventos, int *count, int *capacidade, int t
     return 0;
 }
 
+int simular(Task tarefas[], int numtarefas, int tempototal, const char *algoritmo,
+            Evento **eventos, int *numeventos) {
+    int capacidade = 0;
+    int count = 0;
+    Evento *lista = NULL;
+
+    int *pronta = malloc(numtarefas * sizeof(int));
+    if (pronta == NULL) {
+        fprintf(stderr, "erro: falha ao alocar memoria\n");
+        return -1;
+    }
+    for (int i = 0; i < numtarefas; i++) pronta[i] = 0;
+
+    int atual = -1;
+    int inicio = 0;
+
+    for (int t = 0; t < tempototal; t++) {
+
+        for (int i = 0; i < numtarefas; i++) {
+            if (tarefas[i].proximachegada == t) {
+                tarefas[i].restante = tarefas[i].rajada;
+                tarefas[i].prazoabsoluto = t + tarefas[i].prazo;
+                pronta[i] = 1;
+            }
+        }
+
+        int escolhida = -1;
+        for (int i = 0; i < numtarefas; i++) {
+            if (!pronta[i]) continue;
+            if (escolhida == -1) { escolhida = i; continue; }
+
+            int melhor, empate;
+            if (strcmp(algoritmo, "rate") == 0) {
+                melhor = tarefas[i].periodo < tarefas[escolhida].periodo;
+                empate = tarefas[i].periodo == tarefas[escolhida].periodo;
+            } else {
+                melhor = tarefas[i].prazoabsoluto < tarefas[escolhida].prazoabsoluto;
+                empate = tarefas[i].prazoabsoluto == tarefas[escolhida].prazoabsoluto;
+            }
+            if (melhor || (empate && tarefas[i].ordem < tarefas[escolhida].ordem)) {
+                escolhida = i;
+            }
+        }
+
+        if (escolhida != atual) {
+            char motivo;
+            if (atual == -1) {
+                motivo = ' ';
+            } else {
+                motivo = 'H';
+            }
+            if (adicionar_evento(&lista, &count, &capacidade, atual, t - inicio, motivo) != 0) {
+                fprintf(stderr, "erro: falha ao alocar memoria para eventos\n");
+                free(pronta); free(lista);
+                return -1;
+            }
+            inicio = t;
+            atual = escolhida;
+        }
+
+        if (escolhida != -1) {
+            tarefas[escolhida].restante--;
+
+            if (tarefas[escolhida].restante == 0) {
+                if (adicionar_evento(&lista, &count, &capacidade, escolhida, (t + 1) - inicio, 'F') != 0) {
+                    fprintf(stderr, "erro: falha ao alocar memoria para eventos\n");
+                    free(pronta); free(lista);
+                    return -1;
+                }
+                tarefas[escolhida].totalconcluidas++;
+                pronta[escolhida] = 0;
+                tarefas[escolhida].proximachegada += tarefas[escolhida].periodo;
+                atual = -1;
+                inicio = t + 1;
+            }
+        }
+
+        for (int i = 0; i < numtarefas; i++) {
+            if (pronta[i] && tarefas[i].restante > 0 && tarefas[i].prazoabsoluto == t + 1) {
+                if (i == atual) {
+                    if (adicionar_evento(&lista, &count, &capacidade, i, (t + 1) - inicio, 'L') != 0) {
+                        fprintf(stderr, "erro: falha ao alocar memoria para eventos\n");
+                        free(pronta); free(lista);
+                        return -1;
+                    }
+                    atual = -1;
+                    inicio = t + 1;
+                }
+                tarefas[i].totalperdidas++;
+                tarefas[i].restante = 0;
+                pronta[i] = 0;
+                tarefas[i].proximachegada += tarefas[i].periodo;
+            }
+        }
+    }
+
+    char motivofinal;
+    if (atual == -1) {
+        motivofinal = ' ';
+    } else {
+        motivofinal = 'H';
+    }
+    if (adicionar_evento(&lista, &count, &capacidade, atual, tempototal - inicio, motivofinal) != 0) {
+        fprintf(stderr, "erro: falha ao alocar memoria para eventos\n");
+        free(pronta); free(lista);
+        return -1;
+    }
+
+    free(pronta);
+    *eventos = lista;
+    *numeventos = count;
+    return 0;
+}

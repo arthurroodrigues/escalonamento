@@ -25,6 +25,9 @@ typedef struct {
     char motivo;
 } Evento;
 
+int simular(Task tarefas[], int numtarefas, int tempototal, const char *algoritmo,
+            Evento **eventos, int *numeventos);
+
 int ler_entrada(const char *caminho, Task tarefas[], int *numtarefas, int *tempototal);
 
 #endif
