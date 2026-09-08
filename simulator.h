@@ -17,6 +17,7 @@ typedef struct {
 
     int totalconcluidas;
     int totalperdidas;
+    int totalkilled;
 } Task;
 
 typedef struct {

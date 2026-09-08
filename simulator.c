@@ -81,6 +81,7 @@ int ler_entrada(const char *caminho, Task tarefas[], int *numtarefas, int *tempo
         tarefas[count].prazoabsoluto = prazo;
         tarefas[count].totalconcluidas = 0;
         tarefas[count].totalperdidas = 0;
+        tarefas[count].totalkilled = 0;
 
         count++;
     }
@@ -222,6 +223,8 @@ int simular(Task tarefas[], int numtarefas, int tempototal, const char *algoritm
         motivofinal = ' ';
     } else {
         motivofinal = 'H';
+        tarefas[atual].totalkilled++;
+
     }
     if (adicionar_evento(&lista, &count, &capacidade, atual, tempototal - inicio, motivofinal) != 0) {
         fprintf(stderr, "erro: falha ao alocar memoria para eventos\n");
