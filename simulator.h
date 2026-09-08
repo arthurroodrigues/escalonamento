@@ -19,6 +19,12 @@ typedef struct {
     int totalperdidas;
 } Task;
 
+typedef struct {
+    int tarefa;
+    int duracao;
+    char motivo;
+} Evento;
+
 int ler_entrada(const char *caminho, Task tarefas[], int *numtarefas, int *tempototal);
 
 #endif

@@ -96,3 +96,28 @@ int ler_entrada(const char *caminho, Task tarefas[], int *numtarefas, int *tempo
     *numtarefas = count;
     return 0;
 }
+
+static int adicionar_evento(Evento **eventos, int *count, int *capacidade, int tarefa, int duracao, char motivo) {
+    if (duracao <= 0) return 0;
+
+    if (*count == *capacidade) {
+        int novacapacidade;
+        if (*capacidade == 0) {
+            novacapacidade = 16;
+        } else {
+            novacapacidade = *capacidade * 2;
+        }
+
+        Evento *cresceu = realloc(*eventos, novacapacidade * sizeof(Evento));
+        if (cresceu == NULL) return -1;
+        *eventos = cresceu;
+        *capacidade = novacapacidade;
+    }
+
+    (*eventos)[*count].tarefa = tarefa;
+    (*eventos)[*count].duracao = duracao;
+    (*eventos)[*count].motivo = motivo;
+    (*count)++;
+    return 0;
+}
+
