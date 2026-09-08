@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "simulator.h"
 
@@ -32,5 +33,40 @@ int main(int argc, char *argv[]) {
                tarefas[i].periodo, tarefas[i].prazo, tarefas[i].rajada);
     }
 
+    Evento *eventos;
+    int numeventos;
+
+    if (simular(tarefas, numtarefas, tempototal, algoritmo, &eventos, &numeventos) != 0) {
+        return 1;
+    }
+
+    const char *nomealgoritmo;
+    if (strcmp(algoritmo, "rate") == 0) {
+        nomealgoritmo = "RATE";
+    } else {
+        nomealgoritmo = "EDF";
+    }
+    printf("\nEXECUTION BY %s\n", nomealgoritmo);
+
+    for (int i = 0; i < numeventos; i++) {
+        if (eventos[i].tarefa == -1) {
+            printf("idle for %d units\n", eventos[i].duracao);
+        } else {
+            printf("[%s] for %d units - %c\n",
+                   tarefas[eventos[i].tarefa].nome, eventos[i].duracao, eventos[i].motivo);
+        }
+    }
+
+    printf("\nLOST DEADLINES\n");
+    for (int i = 0; i < numtarefas; i++) {
+        printf("[%s] %d\n", tarefas[i].nome, tarefas[i].totalperdidas);
+    }
+
+    printf("\nCOMPLETE EXECUTION\n");
+    for (int i = 0; i < numtarefas; i++) {
+        printf("[%s] %d\n", tarefas[i].nome, tarefas[i].totalconcluidas);
+    }
+
+    free(eventos);
     return 0;
 }
