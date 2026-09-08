@@ -237,3 +237,45 @@ int simular(Task tarefas[], int numtarefas, int tempototal, const char *algoritm
     *numeventos = count;
     return 0;
 }
+int gravar_saida(const char *caminho, Task tarefas[], int numtarefas, Evento eventos[], int numeventos, const char *algoritmo) {
+    FILE *arquivo = fopen(caminho, "w");
+    if (arquivo == NULL) {
+        fprintf(stderr, "erro: nao foi possivel criar o arquivo de saida '%s'\n", caminho);
+        return -1;
+    }
+
+    const char *nomealgoritmo;
+    if (strcmp(algoritmo, "rate") == 0) {
+        nomealgoritmo = "RATE";
+    } else {
+        nomealgoritmo = "EDF";
+    }
+
+    fprintf(arquivo, "EXECUTION BY %s\n", nomealgoritmo);
+    for (int i = 0; i < numeventos; i++) {
+        if (eventos[i].tarefa == -1) {
+            fprintf(arquivo, "idle for %d units\n", eventos[i].duracao);
+        } else {
+            fprintf(arquivo, "[%s] for %d units - %c\n",
+                    tarefas[eventos[i].tarefa].nome, eventos[i].duracao, eventos[i].motivo);
+        }
+    }
+
+    fprintf(arquivo, "\nLOST DEADLINES\n");
+    for (int i = 0; i < numtarefas; i++) {
+        fprintf(arquivo, "[%s] %d\n", tarefas[i].nome, tarefas[i].totalperdidas);
+    }
+
+    fprintf(arquivo, "\nCOMPLETE EXECUTION\n");
+    for (int i = 0; i < numtarefas; i++) {
+        fprintf(arquivo, "[%s] %d\n", tarefas[i].nome, tarefas[i].totalconcluidas);
+    }
+
+    fprintf(arquivo, "\nKILLED\n");
+    for (int i = 0; i < numtarefas; i++) {
+        fprintf(arquivo, "[%s] %d\n", tarefas[i].nome, tarefas[i].totalkilled);
+    }
+
+    fclose(arquivo);
+    return 0;
+}
