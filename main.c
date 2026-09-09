@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     }
 
     char nomearquivo[64];
-    snprintf(nomearquivo, sizeof(nomearquivo), "%s_ara.out", algoritmo);
+    snprintf(nomearquivo, sizeof(nomearquivo), "%s_%s.out", algoritmo, LOGIN);
 
     if (gravar_saida(nomearquivo, tarefas, numtarefas, eventos, numeventos, algoritmo) != 0) {
         free(eventos);

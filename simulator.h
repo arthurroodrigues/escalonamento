@@ -1,6 +1,8 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
+#define LOGIN "ara"
+
 #define MAX_NOME 32
 #define MAX_TAREFAS 64
 

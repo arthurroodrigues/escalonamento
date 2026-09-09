@@ -52,7 +52,7 @@ int ler_entrada(const char *caminho, Task tarefas[], int *numtarefas, int *tempo
         int campos = sscanf(linha, "%31s %d %d %d", nome, &periodo, &prazo, &rajada);
 
         if (campos != 4) {
-            fprintf(stderr, "erro: linha malformada: %s", linha);
+            fprintf(stderr, "erro: linha malformada: %s\n", linha);
             fclose(arquivo);
             return -1;
         }
